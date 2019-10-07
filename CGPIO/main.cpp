@@ -4,49 +4,68 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+#define numVAOs 1
+
+GLuint renderingProgram;
+GLuint vao[numVAOs];
+
 using namespace std;
 
-void init (GLFWwindow* window) {}
+GLuint createShaderProgram() {
+    const char* vshaderSource =
+    "#version 430 \n"
+    "void main(void) \n"
+    "{gl_Position = vec4(0.0, 0.0, 0.0, 1.0);}";
+    
+    const char* fshaderSource =
+    "#version 430 \n"
+    "out vec4 color; \n"
+    "void main(void) \n"
+    "{color = vec4(0.0, 0.0, 1.0, 1.0);}";
+    
+    GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
+    
+    glShaderSource(vShader, 1, &vshaderSource, nullptr);
+    glShaderSource(fShader, 1, &fshaderSource, nullptr);
+    glCompileShader(vShader);
+    glCompileShader(fShader);
+    
+    GLuint vfProgram = glCreateProgram();
+    glAttachShader(vfProgram, vShader);
+    glAttachShader(vfProgram, fShader);
+    glLinkProgram(vfProgram);
+    
+    return vfProgram;
+    
+}
+
+
+void init (GLFWwindow* window) {
+    renderingProgram = createShaderProgram();
+    glGenVertexArrays(numVAOs, vao);
+    glBindVertexArray(vao[0]);
+}
 
 void display(GLFWwindow* window, double currentTime) {
-    glClearColor(1.0, 0.0, 0.0, 1.0);
-    
-    // void glClear(GLbitfield mask)
-    // GL_COLOR_BUFFERE_BIT : references the color buffer
-    // glClear() : clears all of color buffers that OpenGL has
-    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(renderingProgram);
+    glDrawArrays(GL_POINTS, 0, 1);
 }
 
 int main(void) {
     if (!glfwInit()) {exit(EXIT_FAILURE);}
-    
-    // OpenGL version 2.0
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    
-    // monitor, share: for full screen moce and resource sharing
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     GLFWwindow* window = glfwCreateWindow(600, 600, "Chapter2 - program1", nullptr, nullptr);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) {exit(EXIT_FAILURE);}
-    
-    // vertical synchronization (VSyc)
     glfwSwapInterval(1);
     
-    // includes a reference to the GLFW window object
     init(window);
     
-    // rendering loop
-    // glfwWindowShouldClose : makes the loop terminate when GLFW detects an sould-close event
     while (!glfwWindowShouldClose(window)) {
-        
-        // includes a reference to the GLFW windows object and the current time
         display(window, glfwGetTime());
-        
-        // vertical synchronization (VSyc)
-        // paints the screen
         glfwSwapBuffers(window);
-        
-        // handles other window-related events
         glfwPollEvents();
     }
     
