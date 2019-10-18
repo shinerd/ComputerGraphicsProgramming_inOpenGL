@@ -56,13 +56,13 @@ bool checkOpenGLError() {
 
 string readShaderSource(const char *filePath) {
     string content = "";
-    ifstream fileStream(filePath, ios::in);  // 0
-    cout << fileStream.is_open() << endl;
+    ifstream fileStream(filePath, ios::in);
+//    cerr << "Error: " << strerror(errno) << endl;  // No such file or directory
+//    cout << fileStream.is_open() << endl;  // 0
     string line = "";
     while (!fileStream.eof()) {
         getline(fileStream, line);
         content.append(line + "\n");
-        cout << content << endl;
     }
     fileStream.close();
     return content;
@@ -73,8 +73,8 @@ GLuint createShaderProgram() {
     GLint fragCompiled;
     GLint linked;
     
-    string vertShaderStr = readShaderSource("./vertShader.glsl");
-    string fragShaderStr = readShaderSource("./fragShader.glsl");
+    string vertShaderStr = readShaderSource("vertShader.glsl");
+    string fragShaderStr = readShaderSource("fragShader.glsl");
     
     const char* vertShaderSrc = vertShaderStr.c_str();
     const char* fragShaderSrc = fragShaderStr.c_str();
