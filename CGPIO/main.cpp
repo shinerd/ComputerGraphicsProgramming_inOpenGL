@@ -2,7 +2,9 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <string>
 #include <iostream>
+#include <fstream>
 
 #define numVAOs 1
 
@@ -52,26 +54,36 @@ bool checkOpenGLError() {
     return foundError;
 }
 
+string readShaderSource(const char *filePath) {
+    string content = "";
+    ifstream fileStream(filePath, ios::in);  // 0
+    cout << fileStream.is_open() << endl;
+    string line = "";
+    while (!fileStream.eof()) {
+        getline(fileStream, line);
+        content.append(line + "\n");
+        cout << content << endl;
+    }
+    fileStream.close();
+    return content;
+}
+
 GLuint createShaderProgram() {
     GLint vertCompiled;
     GLint fragCompiled;
     GLint linked;
     
-    const char* vshaderSource =
-    "#version 410 \n"
-    "void main(void) \n"
-    "{gl_Position = vec4(0.0, 0.0, 0.0, 1.0);}";
-    const char* fshaderSource =
-    "#version 410 \n"  // if I had used the module, I could notice the typo earlier
-    "out vec4 color; \n"
-    "void main(void) \n"
-    "{color = vec4(0.0, 0.0, 1.0, 1.0);}";
-
+    string vertShaderStr = readShaderSource("./vertShader.glsl");
+    string fragShaderStr = readShaderSource("./fragShader.glsl");
+    
+    const char* vertShaderSrc = vertShaderStr.c_str();
+    const char* fragShaderSrc = fragShaderStr.c_str();
+    
     GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    glShaderSource(vShader, 1, &vshaderSource, nullptr);
-    glShaderSource(fShader, 1, &fshaderSource, nullptr);
+    glShaderSource(vShader, 1, &vertShaderSrc, nullptr);
+    glShaderSource(fShader, 1, &fragShaderSrc, nullptr);
     
     glCompileShader(vShader);
     checkOpenGLError();
