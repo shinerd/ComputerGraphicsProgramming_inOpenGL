@@ -11,9 +11,13 @@
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 
+// location of triangle on x axis
+float x = 0.0f;
+// offset for moving the triangle
+float inc = 0.01f;
+
 using namespace std;
 
-// displays the contents of OpenGL's log when GLSL compilation failed
 void printShaderLog(GLuint shader) {
     int len = 0;
     int chWrittn = 0;
@@ -27,7 +31,6 @@ void printShaderLog(GLuint shader) {
     }
 }
 
-// displays the contents of OpenGL's log when GLSL linking failed
 void printProgramLog(int prog) {
     int len = 0;
     int chWrittn = 0;
@@ -41,8 +44,6 @@ void printProgramLog(int prog) {
     }
 }
 
-// checks the OpenGL error flag for the occurrrence of an OpenGL error
-// detects both GLSL compilation errors and OpenGL runtime errors
 bool checkOpenGLError() {
     bool foundError = false;
     int glErr = glGetError();
@@ -57,8 +58,6 @@ bool checkOpenGLError() {
 string readShaderSource(const char *filePath) {
     string content = "";
     ifstream fileStream(filePath, ios::in);
-//    cerr << "Error: " << strerror(errno) << endl;  // No such file or directory
-//    cout << fileStream.is_open() << endl;  // 0
     string line = "";
     while (!fileStream.eof()) {
         getline(fileStream, line);
@@ -81,7 +80,7 @@ GLuint createShaderProgram() {
     
     GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
-
+    
     glShaderSource(vShader, 1, &vertShaderSrc, nullptr);
     glShaderSource(fShader, 1, &fragShaderSrc, nullptr);
     
@@ -92,7 +91,7 @@ GLuint createShaderProgram() {
         cout << "vertex compilation failed" << endl;
         printShaderLog(vShader);
     }
-
+    
     glCompileShader(fShader);
     checkOpenGLError();
     glGetShaderiv(fShader, GL_COMPILE_STATUS, &fragCompiled);
@@ -100,7 +99,7 @@ GLuint createShaderProgram() {
         cout << "fragment compilation failed" << endl;
         printShaderLog(fShader);
     }
-
+    
     GLuint vfProgram = glCreateProgram();
     glAttachShader(vfProgram, vShader);
     glAttachShader(vfProgram, fShader);
@@ -112,7 +111,7 @@ GLuint createShaderProgram() {
         cout << "linking failed" << endl;
         printProgramLog(vfProgram);
     }
-
+    
     return vfProgram;
 }
 
@@ -124,11 +123,26 @@ void init (GLFWwindow* window) {
 }
 
 void display(GLFWwindow* window, double currentTime) {
-    glUseProgram(renderingProgram);
-    glPointSize(30.0f);
     
-    // repeat to run "vertShader.glsl" 3 times
-    // gl_VertexID is increased automatically from 0
+    // clear the background to black, each time
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(renderingProgram);
+    
+    // move the triangle along x axis
+    x += inc;
+    // switch to moving the triangle to the left
+    if (x > 1.0f) inc = -0.01f;
+    // switch to moving the triangle to the right
+    if (x < -1.0f) inc = 0.01f;
+    
+    // get ptr to "offset"
+    GLuint offsetLoc = glGetUniformLocation(renderingProgram, "offset");
+    
+    glProgramUniform1f(renderingProgram, offsetLoc, x);
+    
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
