@@ -73,8 +73,8 @@ GLuint createShaderProgram() {
     GLint fragCompiled;
     GLint linked;
     
-    string vertShaderStr = readShaderSource("vertShader.glsl");
-    string fragShaderStr = readShaderSource("fragShader.glsl");
+    string vertShaderStr = readShaderSource("/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/vertShader.glsl");
+    string fragShaderStr = readShaderSource("/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/fragShader.glsl");
     
     const char* vertShaderSrc = vertShaderStr.c_str();
     const char* fragShaderSrc = fragShaderStr.c_str();
@@ -126,7 +126,10 @@ void init (GLFWwindow* window) {
 void display(GLFWwindow* window, double currentTime) {
     glUseProgram(renderingProgram);
     glPointSize(30.0f);
-    glDrawArrays(GL_POINTS, 0, 1);
+    
+    // repeat to run "vertShader.glsl" 3 times
+    // gl_VertexID is increased automatically from 0
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 int main(void) {
