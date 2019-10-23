@@ -9,8 +9,9 @@ Computer Graphics Programming in OpenGL with C++
 * [Program2.4](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/df0515fdbeb8131f87142ddccdb85db8d391f1ca)
 * [Program2.5](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/4962e3305b71e98e86ef9524209f65abde435522)
 * [Program2.6](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/774794b47048d14bfda6332a7765173d85bfa8d4)
-* [Program2.* _Utils](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/e9efa3142bd5e663ce68ace584ee6948d4a8e74f)
+* [Program2_Utils](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/e9efa3142bd5e663ce68ace584ee6948d4a8e74f)
 * [Program3.1](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/c3088291e8707a19b5a8e3ababf7bffcbe1a6523)
-### Check Out the Commits start with 'Exercises'
-* [Exercises2.1](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/9f0659c1ae739333fdef46ab27638a6f9bc3d70f)
-* [Exercises2.2](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/58af32da5a6f8abb07106e9746e80616ff65d564)
+### Check Out the Commits start with 'Exercise'
+* [Exercise2.1](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/9f0659c1ae739333fdef46ab27638a6f9bc3d70f)
+* [Exercise2.2](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/58af32da5a6f8abb07106e9746e80616ff65d564)
+* [Exercise3.1](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/5ca1aba9f58b31b4931536746ff8594d1a8c24e6)
