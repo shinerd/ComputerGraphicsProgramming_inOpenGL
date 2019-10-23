@@ -20,7 +20,9 @@ using namespace std;
 void init (GLFWwindow* window) {
     
     // Utils
-    renderingProgram = Utils::createShaderProgram(                                                                  "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/vertShader.glsl",                      "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/fragShader.glsl");
+    renderingProgram = Utils::createShaderProgram(
+        "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/vertShader.glsl",
+        "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/fragShader.glsl");
      
     glGenVertexArrays(numVAOs, vao);
     glBindVertexArray(vao[0]);
