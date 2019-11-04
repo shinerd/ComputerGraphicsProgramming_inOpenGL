@@ -25,8 +25,9 @@ GLuint vbo[numVBOs];
 
 // variable allocation for display
 GLuint mvLoc, projLoc;
-int width, height;
+int width, height, displayLoopi;
 float aspect;
+float tf;
 glm::mat4 pMat, vMat, tMat, rMat, mMat, mvMat;
 
 void setupVertices(void) {
@@ -65,14 +66,15 @@ void init (GLFWwindow* window) {
     aspect = (float)width / (float)height;
     pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); // 1.0472 radians == 60 degrees
     
-    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 8.0f;
-    cubeLocX = 0.0f; cubeLocY = -2.0f; cubeLocZ = 0.0f;
+    // position the camera further down the positive Z axis (to see all of the cubes)
+    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 32.0f;
     setupVertices();
 }
 
 // repeatedly
 void display(GLFWwindow* window, double currentTime) {
     glClear(GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(renderingProgram);
@@ -80,31 +82,39 @@ void display(GLFWwindow* window, double currentTime) {
     // get locations of uniforms in the shader program
     mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
     projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
-
+    
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
     
-    tMat = glm::translate(glm::mat4(1.0f), glm::vec3(sin(0.35f*currentTime)*2.0f, cos(0.52f*currentTime)*2.0f, sin(0.7f*currentTime)*2.0f));
-    
-    rMat = glm::rotate(glm::mat4(1.0f), 1.75f*(float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
-    rMat = glm::rotate(rMat, 1.75f*(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
-    rMat = glm::rotate(rMat, 1.75f*(float)currentTime, glm::vec3(0.0f, 0.0f, 1.0f));
-    
-    mMat = tMat * rMat;  // rotation -> translation
-    mvMat = vMat * mMat;
-    
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
-    
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);  // makes the 0th buffer "active"
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);  // associates 0th attribute with buffer
-    glEnableVertexAttribArray(0);  // enable the 0th vertex attribute
-    
-    // adjust rendering settings, depth test
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    // tf == "time factor"
+    for (displayLoopi = 0; displayLoopi<24; displayLoopi++) {
+        tf = currentTime + displayLoopi;
+        tMat = glm::translate(glm::mat4(1.0f), glm::vec3(sin(.35f*tf)*8.0f, cos(.52f*tf)*8.0f, sin(.70f*tf)*8.0f));
+        rMat = glm::rotate(glm::mat4(1.0f), 1.75f*tf, glm::vec3(0.0f, 1.0f, 0.0f));
+        rMat = glm::rotate(rMat, 1.75f*tf, glm::vec3(1.0f, 0.0f, 0.0f));
+        rMat = glm::rotate(rMat, 1.75f*tf, glm::vec3(0.0f, 0.0f, 1.0f));
+        mMat = tMat * rMat;
+        mvMat = vMat * mMat;
+        
+        glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        glEnableVertexAttribArray(0);
+        
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 }
+
+//void window_size_callback(GLFWwindow* win, int newWidth, int newHeight) {
+//    aspect = (float)newWidth / (float)newHeight;
+//    glViewport(0, 0, newWidth, newHeight);
+//    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
+//}
 
 int main(void) {
     if (!glfwInit()) {exit(EXIT_FAILURE);}
@@ -116,6 +126,8 @@ int main(void) {
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) {exit(EXIT_FAILURE);}
     glfwSwapInterval(1);
+    
+//    glfwSetWindowSizeCallback(window, window_size_callback);
     
     init(window);
     
