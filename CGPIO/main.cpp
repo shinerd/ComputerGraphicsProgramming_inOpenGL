@@ -14,7 +14,7 @@
 using namespace std;
 
 #define numVAOs 1
-#define numVBOs 2
+#define numVBOs 1
 
 //Utils util = Utils();
 float cameraX, cameraY, cameraZ;
@@ -27,7 +27,7 @@ GLuint vbo[numVBOs];
 GLuint mvLoc, projLoc;
 int width, height;
 float aspect;
-glm::mat4 pMat, vMat, mMat, mvMat;
+glm::mat4 pMat, vMat, tMat, rMat, mMat, mvMat;
 
 void setupVertices(void) {
     // 12 triangles * 3 vertices * 3 values (x, y, z)
@@ -60,6 +60,11 @@ void init (GLFWwindow* window) {
     renderingProgram = Utils::createShaderProgram(
         "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/vertShader.glsl",
         "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/fragShader.glsl");
+    
+    glfwGetFramebufferSize(window, &width, &height);
+    aspect = (float)width / (float)height;
+    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); // 1.0472 radians == 60 degrees
+    
     cameraX = 0.0f; cameraY = 0.0f; cameraZ = 8.0f;
     cubeLocX = 0.0f; cubeLocY = -2.0f; cubeLocZ = 0.0f;
     setupVertices();
@@ -68,28 +73,29 @@ void init (GLFWwindow* window) {
 // repeatedly
 void display(GLFWwindow* window, double currentTime) {
     glClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
     glUseProgram(renderingProgram);
     
     // get locations of uniforms in the shader program
     mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
     projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
-    
-    // send matrix data to the uniform variables
-    glfwGetFramebufferSize(window, &width, &height);
-    aspect = (float)width / (float)height;
-    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); // 1.0472 radians == 60 degrees
-    
-    // glm::mat4(1.0f) : an identity matrix
+
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-    mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+    
+    tMat = glm::translate(glm::mat4(1.0f), glm::vec3(sin(0.35f*currentTime)*2.0f, cos(0.52f*currentTime)*2.0f, sin(0.7f*currentTime)*2.0f));
+    
+    rMat = glm::rotate(glm::mat4(1.0f), 1.75f*(float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+    rMat = glm::rotate(rMat, 1.75f*(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
+    rMat = glm::rotate(rMat, 1.75f*(float)currentTime, glm::vec3(0.0f, 0.0f, 1.0f));
+    
+    mMat = tMat * rMat;  // rotation -> translation
     mvMat = vMat * mMat;
     
     glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);  // makes the 0th buffer "active"
-    
-    // "vertShader.glsl" location = 0
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);  // associates 0th attribute with buffer
     glEnableVertexAttribArray(0);  // enable the 0th vertex attribute
     
