@@ -30,6 +30,7 @@ float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat;
 
 void setupVertices(void) {
+    // 12 triangles * 3 vertices * 3 values (x, y, z)
     float vertexPositions[108] = {
         -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,
          1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
@@ -49,9 +50,12 @@ void setupVertices(void) {
     glGenBuffers(numVBOs, vbo);  // creates VBO and returns the integer ID
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    
+    // loads the cube vertices into the 0th VBO buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
 }
 
+// once
 void init (GLFWwindow* window) {
     renderingProgram = Utils::createShaderProgram(
         "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/vertShader.glsl",
@@ -61,6 +65,7 @@ void init (GLFWwindow* window) {
     setupVertices();
 }
 
+// repeatedly
 void display(GLFWwindow* window, double currentTime) {
     glClear(GL_DEPTH_BUFFER_BIT);
     glUseProgram(renderingProgram);
@@ -74,6 +79,7 @@ void display(GLFWwindow* window, double currentTime) {
     aspect = (float)width / (float)height;
     pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); // 1.0472 radians == 60 degrees
     
+    // glm::mat4(1.0f) : an identity matrix
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
     mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
     mvMat = vMat * mMat;
@@ -82,9 +88,12 @@ void display(GLFWwindow* window, double currentTime) {
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);  // makes the 0th buffer "active"
+    
+    // "vertShader.glsl" location = 0
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);  // associates 0th attribute with buffer
     glEnableVertexAttribArray(0);  // enable the 0th vertex attribute
     
+    // adjust rendering settings, depth test
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     
@@ -104,6 +113,7 @@ int main(void) {
     
     init(window);
     
+    // the rate at which display() is called is referred to as the frame rate
     while (!glfwWindowShouldClose(window)) {
         display(window, glfwGetTime());
         glfwSwapBuffers(window);
