@@ -15,6 +15,8 @@ Computer Graphics Programming in OpenGL with C++
 * [Program4.1+](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/ee730ed398898f1987ede126216a1949275a2ab6)
 * [Program4.1++](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/c7056ae50e2f5652279e048e98745a67705ca31d)
 * [Program4.1+++](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/3e8381269f4ed1f02c7a3710a4e06f89677c728e)
+* [Program4.2](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/b562d6ec842d3246618a6280d3f5138e64380529)
+* [Program4.2+](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/25a27289ddc55f32bf8146a7b671e743c5df8ea0)
 
 ### Check Out the Commits start with 'Exercise'
 * [Exercise2.1](https://github.com/shinerd/ComputerGraphicsProgramming_inOpenGL/tree/9f0659c1ae739333fdef46ab27638a6f9bc3d70f)
