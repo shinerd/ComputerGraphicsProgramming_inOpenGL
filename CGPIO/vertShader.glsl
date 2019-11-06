@@ -16,9 +16,9 @@ mat4 buildTranslate(float x, float y, float z);
 void main(void) {
     float i = gl_InstanceID + tf;  // value based on time factor, but different fo each cube instance
     
-    float a = sin(0.35 * i) * 8.0;
-    float b = sin(0.52 * i) * 8.0;
-    float c = sin(0.70 * i) * 8.0;
+    float a = sin(203.0 * i/8000.0) * 403.0;
+    float b = sin(301.0 * i/4001.0) * 401.0;
+    float c = sin(400.0 * i/6003.0) * 405.0;
     
     mat4 localRotX = buildRotateX(1.75 * i);
     mat4 localRotY = buildRotateY(1.75 * i);

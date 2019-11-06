@@ -100,7 +100,7 @@ void display(GLFWwindow* window, double currentTime) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 24);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
 }
 
 //void window_size_callback(GLFWwindow* win, int newWidth, int newHeight) {
@@ -115,7 +115,7 @@ int main(void) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // I don't know what this does
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // and neither this
-    GLFWwindow* window = glfwCreateWindow(600, 600, "Chapter3 - exercise1", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "Chapter4 - exercise2", nullptr, nullptr);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) {exit(EXIT_FAILURE);}
     glfwSwapInterval(1);
