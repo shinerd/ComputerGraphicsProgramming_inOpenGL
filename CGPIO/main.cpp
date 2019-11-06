@@ -24,10 +24,11 @@ GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 
 // variable allocation for display
-GLuint mvLoc, projLoc;
+GLuint vLoc, tfLoc, projLoc;
+//GLuint mvLoc, projLoc;
 int width, height, displayLoopi;
 float aspect;
-float tf;
+float timeFactor;
 glm::mat4 pMat, vMat, tMat, rMat, mMat, mvMat;
 
 void setupVertices(void) {
@@ -79,35 +80,27 @@ void display(GLFWwindow* window, double currentTime) {
     
     glUseProgram(renderingProgram);
     
-    // get locations of uniforms in the shader program
-    mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
-    projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
-    
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
     
+    vLoc = glGetUniformLocation(renderingProgram, "v_matrix");
+    projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
+    
+    glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(vMat));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+    
+    
+    timeFactor = ((float)currentTime);
+    tfLoc = glGetUniformLocation(renderingProgram, "tf");
+    glUniform1f(tfLoc, (float)timeFactor);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+    glEnableVertexAttribArray(0);
 
-    // tf == "time factor"
-    for (displayLoopi = 0; displayLoopi<24; displayLoopi++) {
-        tf = currentTime + displayLoopi;
-        tMat = glm::translate(glm::mat4(1.0f), glm::vec3(sin(.35f*tf)*8.0f, cos(.52f*tf)*8.0f, sin(.70f*tf)*8.0f));
-        rMat = glm::rotate(glm::mat4(1.0f), 1.75f*tf, glm::vec3(0.0f, 1.0f, 0.0f));
-        rMat = glm::rotate(rMat, 1.75f*tf, glm::vec3(1.0f, 0.0f, 0.0f));
-        rMat = glm::rotate(rMat, 1.75f*tf, glm::vec3(0.0f, 0.0f, 1.0f));
-        mMat = tMat * rMat;
-        mvMat = vMat * mMat;
-        
-        glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-        
-        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-        glEnableVertexAttribArray(0);
-        
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 24);
 }
 
 //void window_size_callback(GLFWwindow* win, int newWidth, int newHeight) {
