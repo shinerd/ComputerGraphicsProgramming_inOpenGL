@@ -158,11 +158,11 @@ void display(GLFWwindow* window, double currentTime) {
     mvStack.pop(); mvStack.pop(); mvStack.pop();
 }
 
-//void window_size_callback(GLFWwindow* win, int newWidth, int newHeight) {
-//    aspect = (float)newWidth / (float)newHeight;
-//    glViewport(0, 0, newWidth, newHeight);
-//    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
-//}
+void window_size_callback(GLFWwindow* win, int newWidth, int newHeight) {
+    aspect = (float)newWidth / (float)newHeight;
+    glViewport(0, 0, newWidth, newHeight);
+    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
+}
 
 int main(void) {
     if (!glfwInit()) {exit(EXIT_FAILURE);}
@@ -175,7 +175,7 @@ int main(void) {
     if (glewInit() != GLEW_OK) {exit(EXIT_FAILURE);}
     glfwSwapInterval(1);
     
-//    glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
     
     init(window);
     
