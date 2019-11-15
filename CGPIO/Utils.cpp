@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-//#include <SOIL2/SOIL2.h>
+#include <SOIL2/SOIL2.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -170,12 +170,12 @@ GLuint Utils::createShaderProgram(const char *vp, const char *tCS, const char* t
 //    return textureRef;
 //}
 
-//GLuint Utils::loadTexture(const char *texImagePath)
-//{
-//    GLuint textureRef;
-//    textureRef = SOIL_load_OGL_texture(texImagePath, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
-//    if (textureRef == 0) cout << "didnt find texture file " << texImagePath << endl;
-//    // ----- mipmap/anisotropic section
+GLuint Utils::loadTexture(const char *texImagePath)
+{
+    GLuint textureRef;
+    textureRef = SOIL_load_OGL_texture(texImagePath, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
+    if (textureRef == 0) cout << "didnt find texture file " << texImagePath << endl;
+    // ----- mipmap/anisotropic section
 //    glBindTexture(GL_TEXTURE_2D, textureRef);
 //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 //    glGenerateMipmap(GL_TEXTURE_2D);
@@ -184,9 +184,9 @@ GLuint Utils::createShaderProgram(const char *vp, const char *tCS, const char* t
 //        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisoset);
 //        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoset);
 //    }
-//    // ----- end of mipmap/anisotropic section
-//    return textureRef;
-//}
+    // ----- end of mipmap/anisotropic section
+    return textureRef;
+}
 
 // GOLD material - ambient, diffuse, specular, and shininess
 float* Utils::goldAmbient() { static float a[4] = { 0.2473f, 0.1995f, 0.0745f, 1 }; return (float*)a; }

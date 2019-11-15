@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <SOIL2/SOIL2.h>
 #include "Utils.h"
 
 using namespace std;
@@ -25,30 +26,14 @@ GLuint vbo[numVBOs];
 
 // variable allocation for display
 GLuint mvLoc, projLoc;
-// GLuint mvLoc, projLoc;
+GLuint brickTexture;
+
 int width, height;
 float aspect;
 float timeFactor;
 glm::mat4 pMat, vMat, mMat, mvMat;
 
-stack<glm::mat4> mvStack;
-
 void setupVertices(void) {
-    // 12 triangles * 3 vertices * 3 values (x, y, z)
-    float cubePositions[108] = {
-        -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f, -1.0f,
-        1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f, -1.0f,
-        1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f,
-    };
     // 6 triangles * 3 vertices * 3 values
     float pyramidPositions[54] = {
         -1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
@@ -59,22 +44,27 @@ void setupVertices(void) {
         1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f
     };
     
+    // 6 triangles * 3 vertices * 2 values
+    float pyrTexCoords[36] = {
+        0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f,     0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f,
+        0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f,     0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,     1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
+    };
+    
     // we need at least 1 VAO and 2 VBOs
     glGenVertexArrays(numVAOs, vao);
     glBindVertexArray(vao[0]);
     glGenBuffers(numVBOs, vbo);
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cubePositions), cubePositions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidPositions), pyramidPositions, GL_STATIC_DRAW);
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidPositions), pyramidPositions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pyrTexCoords), pyrTexCoords, GL_STATIC_DRAW);
 }
 
 void init (GLFWwindow* window) {
-    renderingProgram = Utils::createShaderProgram(
-                                                  "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/vertShader.glsl",
-                                                  "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/fragShader.glsl");
+    renderingProgram = Utils::createShaderProgram("/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/vertShader.glsl", "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/fragShader.glsl");
     
     glfwGetFramebufferSize(window, &width, &height);
     aspect = (float)width / (float)height;
@@ -83,6 +73,8 @@ void init (GLFWwindow* window) {
     // position the camera further down the positive Z axis (to see all of the cubes)
     cameraX = 0.0f; cameraY = 0.0f; cameraZ = 12.0f;
     setupVertices();
+    
+    brickTexture = Utils::loadTexture("/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/brick1.jpg");
 }
 
 // repeatedly
@@ -98,83 +90,24 @@ void display(GLFWwindow* window, double currentTime) {
     
     // push view matrix onto the stack
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-    mvStack.push(vMat);
     
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
     
-    // pyramid sun
-    
-    mvStack.push(mvStack.top());
-    mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));  // sun position
-    mvStack.push(mvStack.top());  // duplicating
-    mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));  // sun rotation
-    
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvStack.top()));
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE0, brickTexture);
+    
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    
     glDrawArrays(GL_TRIANGLES, 0, 18);
-    mvStack.pop();
-    
-    // new cube planet
-    
-    mvStack.push(mvStack.top());  // mvMat of sun
-    mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime-5.0) * 5.0,
-                                                               sin((float)currentTime-5.0) * 5.0,
-                                                               cos((float)currentTime-5.0) * 5.0));  // planet position
-    mvStack.push(mvStack.top());  // duplicating
-    mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0, 1.0, 0.0));  // planet rotation
-    mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.55f));
-    
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvStack.top()));
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-    //    glEnable(GL_DEPTH_TEST);
-    //    glDepthFunc(GL_LEQUAL);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    mvStack.pop(); mvStack.pop();
-    
-    // cube planet
-    
-    mvStack.push(mvStack.top());  // mvMat of sun
-    mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime) * 4.0,
-                                                               0.0f,
-                                                               cos((float)currentTime) * 4.0));  // planet position
-    mvStack.push(mvStack.top());  // duplicating
-    mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0, 1.0, 0.0));  // planet rotation
-    
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvStack.top()));
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-    //    glEnable(GL_DEPTH_TEST);
-    //    glDepthFunc(GL_LEQUAL);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    mvStack.pop();
-    
-    // cube moon
-    
-    mvStack.push(mvStack.top());  // mvMat of planet
-    mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,
-                                                               sin((float)currentTime) * 2.0,
-                                                               cos((float)currentTime) * 2.0));  // moon position
-    mvStack.push(mvStack.top());  // duplicating
-    mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0, 0.0, 1.0));  // moon rotation
-    
-    mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, 0.25f, 0.25f));  // make the moon smaller
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvStack.top()));
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-    //    glEnable(GL_DEPTH_TEST);
-    //    glDepthFunc(GL_LEQUAL);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    mvStack.pop();
-    
-    mvStack.pop(); mvStack.pop(); mvStack.pop();
 }
 
 void window_size_callback(GLFWwindow* win, int newWidth, int newHeight) {
