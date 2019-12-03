@@ -151,24 +151,24 @@ GLuint Utils::createShaderProgram(const char *vp, const char *tCS, const char* t
 	return vtgfprogram;
 }
 
-//GLuint Utils::loadCubeMap(const char *mapDir) {
-//    GLuint textureRef;
-//    string xp = mapDir; xp = xp + "/xp.jpg";
-//    string xn = mapDir; xn = xn + "/xn.jpg";
-//    string yp = mapDir; yp = yp + "/yp.jpg";
-//    string yn = mapDir; yn = yn + "/yn.jpg";
-//    string zp = mapDir; zp = zp + "/zp.jpg";
-//    string zn = mapDir; zn = zn + "/zn.jpg";
-//    textureRef = SOIL_load_OGL_cubemap(xp.c_str(), xn.c_str(), yp.c_str(), yn.c_str(), zp.c_str(), zn.c_str(),
-//        SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-//    if (textureRef == 0) cout << "didnt find cube map image file" << endl;
-//    //    glBindTexture(GL_TEXTURE_CUBE_MAP, textureRef);
-//    // reduce seams
-//    //    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//    //    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//    //    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-//    return textureRef;
-//}
+GLuint Utils::loadCubeMap(const char *mapDir) {
+    GLuint textureRef;
+    string xp = mapDir; xp = xp + "/xp.jpg";
+    string xn = mapDir; xn = xn + "/xn.jpg";
+    string yp = mapDir; yp = yp + "/yp.jpg";
+    string yn = mapDir; yn = yn + "/yn.jpg";
+    string zp = mapDir; zp = zp + "/zp.jpg";
+    string zn = mapDir; zn = zn + "/zn.jpg";
+    textureRef = SOIL_load_OGL_cubemap(xp.c_str(), xn.c_str(), yp.c_str(), yn.c_str(), zp.c_str(), zn.c_str(),
+        SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+    if (textureRef == 0) cout << "didnt find cube map image file" << endl;
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureRef);
+        // reduce seams
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    return textureRef;
+}
 
 GLuint Utils::loadTexture(const char *texImagePath)
 {
@@ -176,14 +176,14 @@ GLuint Utils::loadTexture(const char *texImagePath)
     textureRef = SOIL_load_OGL_texture(texImagePath, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
     if (textureRef == 0) cout << "didnt find texture file " << texImagePath << endl;
     // ----- mipmap/anisotropic section
-//    glBindTexture(GL_TEXTURE_2D, textureRef);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-//    glGenerateMipmap(GL_TEXTURE_2D);
-//    if (glewIsSupported("GL_EXT_texture_filter_anisotropic")) {
-//        GLfloat anisoset = 0.0f;
-//        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisoset);
-//        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoset);
-//    }
+    glBindTexture(GL_TEXTURE_2D, textureRef);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    if (glewIsSupported("GL_EXT_texture_filter_anisotropic")) {
+        GLfloat anisoset = 0.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisoset);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoset);
+    }
     // ----- end of mipmap/anisotropic section
     return textureRef;
 }

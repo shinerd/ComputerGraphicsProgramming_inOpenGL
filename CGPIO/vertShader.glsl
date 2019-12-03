@@ -1,7 +1,7 @@
-#version 410
+#version 420
 
 layout (location=0) in vec3 pos;  // coord
-layout (location=1) in vec2 texCooord;
+layout (location=1) in vec2 texCoord;
 
 out vec2 tc;  // texture coordinate output to rasterizer for interpolation
 

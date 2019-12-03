@@ -20,6 +20,7 @@ using namespace std;
 
 // Utils util = Utils();
 float cameraX, cameraY, cameraZ;
+float pyrLocX, pyrLocY, pyrLocZ;
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
@@ -30,7 +31,7 @@ GLuint brickTexture;
 
 int width, height;
 float aspect;
-float timeFactor;
+//float timeFactor;
 glm::mat4 pMat, vMat, mMat, mvMat;
 
 void setupVertices(void) {
@@ -66,13 +67,14 @@ void setupVertices(void) {
 void init (GLFWwindow* window) {
     renderingProgram = Utils::createShaderProgram("/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/vertShader.glsl", "/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/fragShader.glsl");
     
+    // position the camera further down the positive Z axis (to see all of the cubes)
+    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 12.0f;
+    pyrLocX = 0.0f; pyrLocY = 0.0f; pyrLocZ = 0.0f;
+    setupVertices();
+    
     glfwGetFramebufferSize(window, &width, &height);
     aspect = (float)width / (float)height;
     pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); // 1.0472 radians == 60 degrees
-    
-    // position the camera further down the positive Z axis (to see all of the cubes)
-    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 12.0f;
-    setupVertices();
     
     brickTexture = Utils::loadTexture("/Users/shinerd/Documents/ComputerGraphicsProgramming_inOpenGL/CGPIO/brick1.jpg");
 }
@@ -88,9 +90,12 @@ void display(GLFWwindow* window, double currentTime) {
     projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
     mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
     
-    // push view matrix onto the stack
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
+    mMat = glm::translate(glm::mat4(1.0f), glm::vec3(pyrLocX, pyrLocY, pyrLocZ));
     
+    mvMat = vMat * mMat;
+    
+    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -102,7 +107,7 @@ void display(GLFWwindow* window, double currentTime) {
     glEnableVertexAttribArray(1);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE0, brickTexture);
+    glBindTexture(GL_TEXTURE_2D, brickTexture);
     
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -119,7 +124,7 @@ void window_size_callback(GLFWwindow* win, int newWidth, int newHeight) {
 int main(void) {
     if (!glfwInit()) {exit(EXIT_FAILURE);}
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // I don't know what this does
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // and neither this
     GLFWwindow* window = glfwCreateWindow(600, 600, "Chapter4 - program3", nullptr, nullptr);
